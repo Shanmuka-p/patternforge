@@ -2,9 +2,12 @@ package com.example.patternforge.patterns.composite;
 
 import com.example.patternforge.domain.DashboardComponent;
 
+import org.springframework.stereotype.Service;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Service
 public class DashboardTreeService {
 
     private final Map<String, DashboardComponent> nodeRegistry = new ConcurrentHashMap<>();
