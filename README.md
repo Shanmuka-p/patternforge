@@ -25,16 +25,44 @@ The project's distinguishing feature is its **live call-chain tracer**: a WebSoc
 
 ---
 
-## Running the Application (Docker)
+## Running the Application
 
-The project ships with a multi-stage `Dockerfile` (builds with `eclipse-temurin:17-jdk-alpine`, runs on `eclipse-temurin:17-jre-alpine`) and a `docker-compose.yml` that reads configuration from a `.env` file.
+---
 
-### 1 — Create your environment file
+### Prerequisites
+
+Before running PatternForge, ensure the following tools are installed and available on your `PATH`:
+
+| Tool | Minimum Version | Purpose |
+|---|---|---|
+| **Git** | any | Clone the repository |
+| **Docker Desktop** | 24+ | Build and run the containerised application (recommended path) |
+| **Docker Compose** | v2 (bundled with Docker Desktop) | Orchestrate the container |
+| **JDK 17** *(optional)* | 17+ | Only needed for the local/native run path |
+
+---
+
+### Option A — Docker (Recommended)
+
+The project ships with a multi-stage `Dockerfile` (builds with `maven:3.9-eclipse-temurin-17`, runs on `eclipse-temurin:17-jre-alpine`) and a `docker-compose.yml` that reads configuration from a `.env` file.
+
+#### Step 1 — Clone the repository
+
+```bash
+git clone https://github.com/Shanmuka-p/patternforge.git
+cd patternforge
+```
+
+#### Step 2 — Create your environment file
 
 Copy the provided example and adjust values if needed:
 
 ```bash
+# macOS / Linux / Git Bash on Windows
 cp .env.example .env
+
+# PowerShell on Windows
+Copy-Item .env.example .env
 ```
 
 Default contents of `.env`:
@@ -44,29 +72,99 @@ APP_PORT=8080
 SPRING_PROFILE=dev
 ```
 
-`APP_PORT` controls which host port maps to the container's `8080`. `SPRING_PROFILE` sets `SPRING_PROFILES_ACTIVE` inside the container.
+`APP_PORT` controls which host port maps to the container's `8080`.  
+`SPRING_PROFILE` sets `SPRING_PROFILES_ACTIVE` inside the container.
 
-### 2 — Build the image and start the container
+#### Step 3 — Build the image and start the container
 
 ```bash
 docker-compose up --build
 ```
 
-The first build downloads Maven dependencies and compiles the source; subsequent builds are faster due to Docker layer caching of the `dependency:go-offline` stage.
+The first build pulls the Maven base image, downloads all dependencies (cached as a Docker layer by the `dependency:go-offline` step), compiles the source, and packages the fat JAR. **Subsequent builds skip the dependency download entirely** and are significantly faster.
 
-To run in detached mode:
+To run in detached (background) mode:
 
 ```bash
 docker-compose up --build -d
 ```
 
-To stop and remove containers:
+To tail logs while running in detached mode:
+
+```bash
+docker-compose logs -f
+```
+
+To stop and remove the container:
 
 ```bash
 docker-compose down
 ```
 
-### 3 — Access the application
+---
+
+### Option B — Local / Native (No Docker)
+
+Use this path if you prefer to run the application directly on your machine with a locally installed JDK 17.
+
+#### Step 1 — Clone the repository
+
+```bash
+git clone https://github.com/Shanmuka-p/patternforge.git
+cd patternforge
+```
+
+#### Step 2 — Run via the Maven Wrapper
+
+The repository includes `mvnw` (Linux/macOS) and `mvnw.cmd` (Windows), so no separate Maven installation is required.
+
+```bash
+# macOS / Linux
+./mvnw spring-boot:run
+
+# Windows PowerShell
+.\mvnw.cmd spring-boot:run
+```
+
+Maven will download all dependencies on the first run. The application starts on port **8080** by default.
+
+To use a different port:
+
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.arguments="--server.port=9090"
+```
+
+To run tests before starting:
+
+```bash
+./mvnw verify
+```
+
+---
+
+### Step 4 — Verify the Application is Running
+
+Wait for this line in the console output (or logs):
+
+```
+Started PatternForgeApplication in X.XXX seconds
+```
+
+Then confirm the app responds:
+
+```bash
+curl http://localhost:8080/v3/api-docs
+```
+
+Or open the **Swagger UI** in your browser to explore every endpoint interactively:
+
+```
+http://localhost:8080/swagger-ui.html
+```
+
+---
+
+### Step 5 — Access Points
 
 | Endpoint | URL |
 |---|---|
@@ -76,7 +174,38 @@ docker-compose down
 | WebSocket endpoint (SockJS) | `ws://localhost:8080/ws-patternforge` |
 | Live call-chain topic | `/topic/call-chain` |
 
-> **Note:** If you changed `APP_PORT` in `.env`, substitute that port for `8080` in all URLs above.
+> **Note:** If you changed `APP_PORT` in `.env` (Docker path) or `--server.port` (local path), substitute that port for `8080` in all URLs above.
+
+---
+
+### Step 6 — Test the Live Call-Chain WebSocket (Optional)
+
+You can verify the WebSocket tracer is emitting events without any custom client. Use the browser console on the Swagger UI page or any STOMP client.
+
+**Quick test with `wscat` (Node.js):**
+
+```bash
+# Install once
+npm install -g wscat
+
+# Connect to the SockJS endpoint
+wscat -c "ws://localhost:8080/ws-patternforge/websocket"
+```
+
+Then trigger any pattern endpoint via Swagger UI (e.g., `POST /api/composite/render`) and you will see `CallChainEvent` JSON objects pushed to the terminal in real time.
+
+---
+
+### Troubleshooting
+
+| Symptom | Likely Cause | Fix |
+|---|---|---|
+| `Port 8080 is already in use` | Another process is bound to 8080 | Change `APP_PORT` in `.env` or stop the conflicting process (`lsof -i :8080` / `netstat -ano \| findstr 8080`) |
+| `docker-compose: command not found` | Docker Compose v2 not installed | Install Docker Desktop ≥ 24 which bundles Compose v2, or install the standalone `docker-compose` CLI |
+| `.env` not found / `APP_PORT` unset | `.env` file missing | Run `cp .env.example .env` to create it |
+| First build is very slow | Maven dependencies downloading | Wait — subsequent builds use the cached Docker layer and are fast |
+| `JAVA_HOME` not set (local path) | JDK 17 not configured | Install JDK 17 and set `JAVA_HOME` to the JDK root, then add `$JAVA_HOME/bin` to `PATH` |
+| Container exits immediately | Application failed to start | Run `docker-compose logs patternforge-app` to see the Spring Boot error output |
 
 ---
 
