@@ -68,7 +68,7 @@ Copy-Item .env.example .env
 Default contents of `.env`:
 
 ```env
-APP_PORT=8080
+APP_PORT=8081
 SPRING_PROFILE=dev
 ```
 
@@ -126,7 +126,7 @@ The repository includes `mvnw` (Linux/macOS) and `mvnw.cmd` (Windows), so no sep
 .\mvnw.cmd spring-boot:run
 ```
 
-Maven will download all dependencies on the first run. The application starts on port **8080** by default.
+Maven will download all dependencies on the first run. The application starts on port **8081** by default.
 
 To use a different port:
 
@@ -153,13 +153,13 @@ Started PatternForgeApplication in X.XXX seconds
 Then confirm the app responds:
 
 ```bash
-curl http://localhost:8080/v3/api-docs
+curl http://localhost:8081/v3/api-docs
 ```
 
 Or open the **Swagger UI** in your browser to explore every endpoint interactively:
 
 ```
-http://localhost:8080/swagger-ui.html
+http://localhost:8081/swagger-ui.html
 ```
 
 ---
@@ -168,13 +168,13 @@ http://localhost:8080/swagger-ui.html
 
 | Endpoint | URL |
 |---|---|
-| Application root | <http://localhost:8080> |
-| Swagger UI (API explorer) | <http://localhost:8080/swagger-ui.html> |
-| OpenAPI JSON spec | <http://localhost:8080/v3/api-docs> |
-| WebSocket endpoint (SockJS) | `ws://localhost:8080/ws-patternforge` |
+| Application root | <http://localhost:8081> |
+| Swagger UI (API explorer) | <http://localhost:8081/swagger-ui.html> |
+| OpenAPI JSON spec | <http://localhost:8081/v3/api-docs> |
+| WebSocket endpoint (SockJS) | `ws://localhost:8081/ws-patternforge` |
 | Live call-chain topic | `/topic/call-chain` |
 
-> **Note:** If you changed `APP_PORT` in `.env` (Docker path) or `--server.port` (local path), substitute that port for `8080` in all URLs above.
+> **Note:** If you changed `APP_PORT` in `.env` (Docker path) or `--server.port` (local path), substitute that port for `8081` in all URLs above.
 
 ---
 
@@ -189,7 +189,7 @@ You can verify the WebSocket tracer is emitting events without any custom client
 npm install -g wscat
 
 # Connect to the SockJS endpoint
-wscat -c "ws://localhost:8080/ws-patternforge/websocket"
+wscat -c "ws://localhost:8081/ws-patternforge/websocket"
 ```
 
 Then trigger any pattern endpoint via Swagger UI (e.g., `POST /api/composite/render`) and you will see `CallChainEvent` JSON objects pushed to the terminal in real time.
@@ -200,7 +200,7 @@ Then trigger any pattern endpoint via Swagger UI (e.g., `POST /api/composite/ren
 
 | Symptom | Likely Cause | Fix |
 |---|---|---|
-| `Port 8080 is already in use` | Another process is bound to 8080 | Change `APP_PORT` in `.env` or stop the conflicting process (`lsof -i :8080` / `netstat -ano \| findstr 8080`) |
+| `Port 8081 is already in use` | Another process is bound to 8081 | Change `APP_PORT` in `.env` or stop the conflicting process (`lsof -i :8081` / `netstat -ano \| findstr 8081`) |
 | `docker-compose: command not found` | Docker Compose v2 not installed | Install Docker Desktop ≥ 24 which bundles Compose v2, or install the standalone `docker-compose` CLI |
 | `.env` not found / `APP_PORT` unset | `.env` file missing | Run `cp .env.example .env` to create it |
 | First build is very slow | Maven dependencies downloading | Wait — subsequent builds use the cached Docker layer and are fast |
