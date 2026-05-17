@@ -2,6 +2,7 @@ package com.example.patternforge.patterns.composite;
 
 import com.example.patternforge.domain.DashboardComponent;
 import com.example.patternforge.domain.RenderResult;
+import com.example.patternforge.tracing.PatternStackTracer;
 
 import java.util.List;
 
@@ -23,6 +24,7 @@ public class WidgetNode implements DashboardComponent {
 
     @Override
     public RenderResult render() {
+        PatternStackTracer.trace("Composite", "WidgetNode", "render");
         return new RenderResult("<div>" + content + "</div>", List.of());
     }
 

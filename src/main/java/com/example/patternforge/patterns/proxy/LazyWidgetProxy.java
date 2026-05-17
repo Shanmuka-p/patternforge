@@ -1,6 +1,7 @@
 package com.example.patternforge.patterns.proxy;
 
 import com.example.patternforge.domain.RenderResult;
+import com.example.patternforge.tracing.PatternStackTracer;
 
 import java.util.List;
 
@@ -34,6 +35,7 @@ public class LazyWidgetProxy implements HeavyWidget {
 
     @Override
     public RenderResult render() {
+        PatternStackTracer.trace("Proxy", "LazyWidgetProxy", "render");
         if (videoWidget == null) {
             return new RenderResult("<div id=\"" + id + "\" class=\"skeleton\">Loading video...</div>", List.of());
         }

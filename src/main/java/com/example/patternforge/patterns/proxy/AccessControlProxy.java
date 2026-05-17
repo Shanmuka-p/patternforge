@@ -3,6 +3,7 @@ package com.example.patternforge.patterns.proxy;
 import com.example.patternforge.domain.DashboardComponent;
 import com.example.patternforge.domain.RenderResult;
 import com.example.patternforge.patterns.decorator.WidgetDecorator;
+import com.example.patternforge.tracing.PatternStackTracer;
 
 import java.util.List;
 
@@ -16,6 +17,7 @@ public class AccessControlProxy extends WidgetDecorator {
 
     @Override
     public RenderResult render() {
+        PatternStackTracer.trace("Proxy", "AccessControlProxy", "render");
         if (requiredRole.equals(SessionState.getCurrentRole())) {
             return super.render();
         } else {

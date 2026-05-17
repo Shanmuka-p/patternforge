@@ -2,6 +2,7 @@ package com.example.patternforge.patterns.decorator;
 
 import com.example.patternforge.domain.DashboardComponent;
 import com.example.patternforge.domain.RenderResult;
+import com.example.patternforge.tracing.PatternStackTracer;
 
 import java.util.List;
 
@@ -19,6 +20,7 @@ public abstract class WidgetDecorator implements DashboardComponent {
 
     @Override
     public RenderResult render() {
+        PatternStackTracer.trace("Decorator", this.getClass().getSimpleName(), "render");
         return wrapped.render();
     }
 

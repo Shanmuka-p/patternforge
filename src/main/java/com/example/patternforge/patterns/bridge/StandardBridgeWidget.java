@@ -1,6 +1,7 @@
 package com.example.patternforge.patterns.bridge;
 
 import com.example.patternforge.domain.RenderResult;
+import com.example.patternforge.tracing.PatternStackTracer;
 
 public class StandardBridgeWidget extends BridgeWidget {
     private final String id;
@@ -20,6 +21,7 @@ public class StandardBridgeWidget extends BridgeWidget {
 
     @Override
     public RenderResult render() {
+        PatternStackTracer.trace("Bridge", "StandardBridgeWidget", "render");
         if (renderer == null) {
             throw new IllegalStateException("Renderer not set");
         }

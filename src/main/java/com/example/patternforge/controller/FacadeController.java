@@ -25,7 +25,7 @@ public class FacadeController {
         return dashboardManager.createDashboard();
     }
 
-    @PostMapping("/api/subsystems/layout/calculate-grid")
+    @PostMapping("/subsystems/layout/calculate-grid")
     public String calculateGrid() {
         return layoutEngine.calculateGrid();
     }
